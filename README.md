@@ -56,7 +56,7 @@ flowchart LR
 
 #### post user
 
-```http
+```
   post /postUser
 ```
 
