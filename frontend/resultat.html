@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BayrouMeter • Résultats</title>
+  <style>
+    :root{
+    font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif
+    }
+    body{
+        margin:0;
+        min-height:100vh;
+        display:grid;
+        place-items:center;
+        background:#0b1020;
+        color:#eaf0ff
+    }
+    .card{
+        width:min(700px,92vw);
+        background:#121936;
+        border-radius:16px;
+        padding:24px;
+        box-shadow:0 10px 30px rgba(0,0,0,.35)
+    }
+    h1{
+        margin:0 0 12px;
+        font-size:1.35rem
+    }
+    .meta{
+        color:#9fb1ff;
+        margin-bottom:10px
+    }
+    .row{
+        margin:12px 0
+    }
+    .label{
+        display:flex;
+        justify-content:space-between;
+        margin-bottom:6px
+    }
+    .bar{
+        height:18px;
+        border-radius:10px;
+        background:#223066;
+        overflow:hidden
+    }
+    .fill{
+        height:100%
+    }
+    .fill.oui{
+        background:#2ea043
+    }
+    .fill.non{
+        background:#d34040
+    }
+    .tot{
+        margin-top:10px;
+        color:#c9d6ff
+    }
+    a{
+        color:#c9d6ff
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Résultats du vote</h1>
+    <div class="meta">
+      Question : <em>Est-ce que François Bayrou nous manque ?</em>
+      &nbsp;•&nbsp; <a href="vote.html">Voter</a>
+    </div>
+
+    <div class="row">
+      <div class="label"><span>Oui</span><span id="p-oui">0%</span></div>
+      <div class="bar"><div class="fill oui" id="bar-oui" style="width:0%"></div></div>
+      <div class="label" style="margin-top:4px"><small id="c-oui">0 voix</small></div>
+    </div>
+
+    <div class="row">
+      <div class="label"><span>Non</span><span id="p-non">0%</span></div>
+      <div class="bar"><div class="fill non" id="bar-non" style="width:0%"></div></div>
+      <div class="label" style="margin-top:4px"><small id="c-non">0 voix</small></div>
+    </div>
+
+    <div class="tot" id="total">Total : 0 vote</div>
+  </div>
+
+  <script>
+    // 🔧 change si tu testes en local
+    // const BASE_URL = "http://localhost:7071/api";
+    const BASE_URL = "https://bayroumeter-functions.azurewebsites.net/api";
+
+    async function load() {
+      try {
+        const res = await fetch(`${BASE_URL}/resultat`, { cache: "no-store" });
+        const data = await res.json();
+
+        const pctOui = data.percent?.Oui ?? 0;
+        const pctNon = data.percent?.Non ?? 0;
+        const cOui   = data.counts?.Oui ?? 0;
+        const cNon   = data.counts?.Non ?? 0;
+        const total  = data.total ?? (cOui + cNon);
+
+        document.getElementById('p-oui').textContent = `${pctOui}%`;
+        document.getElementById('p-non').textContent = `${pctNon}%`;
+        document.getElementById('bar-oui').style.width = `${pctOui}%`;
+        document.getElementById('bar-non').style.width = `${pctNon}%`;
+        document.getElementById('c-oui').textContent = `${cOui} voix`;
+        document.getElementById('c-non').textContent = `${cNon} voix`;
+        document.getElementById('total').textContent = `Total : ${total} vote${total>1?'s':''}`;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    load();
+    // auto-refresh toutes les 5 secondes
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>

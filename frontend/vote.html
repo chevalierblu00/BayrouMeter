@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BayrouMeter • Voter</title>
+  <style>
+    :root{
+      font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif
+    }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      background:#0b1020;
+      color:#eaf0ff
+    }
+    .card{
+      width:min(640px,92vw);
+      background:#121936;
+      border-radius:16px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35)
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+      color:#c9d6ff;font-size:.95rem
+    }
+    h1{
+      margin:6px 0 12px;
+      font-size:1.35rem
+    }
+    .q{
+      font-size:1.15rem;
+      margin:10px 0 18px
+    }
+    .btns{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap
+    }
+    button{
+      flex:1 1 120px;
+      padding:.9rem 1rem;
+      border:0;
+      border-radius:14px;
+      background:#28315e;
+      color:#fff;font-weight:700;
+      cursor:pointer
+    }
+    .oui{
+      background:#2ea043
+    }
+    .non{
+      background:#d34040
+    }
+    button:disabled{
+      opacity:.6;cursor:not-allowed
+    }
+    .msg{
+      min-height:1.2rem;
+      margin-top:12px
+    }
+    a{
+      color:#c9d6ff
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div id="who"></div>
+      <div><a href="#" id="logout">Se déconnecter</a></div>
+    </div>
+
+    <h1>Vote</h1>
+    <div class="q"><strong>Question :</strong> Est-ce que François Bayrou nous manque ?&nbsp;•&nbsp; <a href="resultat.html">Resultats</a></div>
+
+    <div class="btns">
+      <button class="oui" id="oui">Oui</button>
+      <button class="non" id="non">Non</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const BASE_URL = "https://bayroumeter-functions.azurewebsites.net/api";
+
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const who  = document.getElementById('who');
+    const msg  = document.getElementById('msg');
+    const btnOui = document.getElementById('oui');
+    const btnNon = document.getElementById('non');
+    const logout = document.getElementById('logout');
+
+    if (!user || !user.id) {
+      window.location.href = "login.html";
+    } else {
+      who.textContent = `Connecté : ${user.pseudo || user.email} (${user.email})`;
+    }
+
+    async function vote(choice) {
+      btnOui.disabled = true; btnNon.disabled = true; msg.textContent = "";
+
+      try {
+        const res  = await fetch(`${BASE_URL}/postVote?userId=${encodeURIComponent(user.id)}`, {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify({ choice })
+        });
+        const data = await res.json();
+
+        if (res.status === 201) {
+          msg.textContent = `✅ Vote enregistré : ${choice}`;
+        } else if (res.status === 409) {
+          msg.textContent = "⚠️ Tu as déjà voté.";
+        } else if (!res.ok) {
+          msg.textContent = data.error || "Erreur serveur.";
+          btnOui.disabled = false; btnNon.disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Impossible de contacter l’API.";
+        btnOui.disabled = false; btnNon.disabled = false;
+      }
+    }
+
+    btnOui.addEventListener('click', () => vote("Oui"));
+    btnNon.addEventListener('click', () => vote("Non"));
+    logout.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem("user"); window.location.href = "login.html"; });
+  </script>
+</body>
+</html>
