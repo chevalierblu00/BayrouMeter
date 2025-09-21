@@ -49,7 +49,7 @@ flowchart LR
 
 ### API Reference
 
-```http
+```
  Base (prod) : https://bayroumeter-functions.azurewebsites.net/api
  En local(exemple) : http://localhost:7071/api
 ```
@@ -66,7 +66,7 @@ Crée ou retourne un utilisateur existant (idempotent via l’email).
 
 #### Get user
 
-```http
+```
   GET /users
 ```
 
@@ -76,7 +76,7 @@ Retourne la liste { id, pseudo, email }
 
 #### post postVote
 
-```http
+```
   post /postVote?userId=<UUID>
 ```
 
@@ -86,7 +86,7 @@ Enregistre un vote Oui/Non pour l’utilisateur.
 
 #### Get votes
 
-```http
+```
   GET /votes
 ```
 
@@ -96,7 +96,7 @@ Liste brute des votes :
 
 #### Get resultat
 
-```http
+```
   GET /resultat
 ```
 
