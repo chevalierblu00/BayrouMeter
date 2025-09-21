@@ -128,5 +128,6 @@ BayrouMeter/
    ├─ login.png
    ├─ vote.png
    ├─ results.png
+   ├─ monitoring-functions-stats.png
    └─ monitoring-functions.png
 ```
